@@ -40,6 +40,7 @@ chrome.webRequest.onHeadersReceived.addListener((details) => {
   const url       = details.url;
   const isReqUrl  = _.startsWith(initUrl, baseUrl);
   const isWantUrl =
+    _.startsWith(url, 'http://api.aengzi.com/') ||
     _.startsWith(url, 'http://101.79.136.27/') ||
     _.startsWith(url, 'http://101.79.136.36/') ||
     _.startsWith(url, 'http://211.110.86.208/') ||
