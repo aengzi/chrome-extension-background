@@ -1,5 +1,3 @@
-import * as _ from 'lodash';
-
 chrome.browserAction.onClicked.addListener((tab) => {
 
   chrome.tabs.create({
@@ -38,15 +36,14 @@ chrome.webRequest.onHeadersReceived.addListener((details) => {
   const headers   = details.responseHeaders;
   const initUrl   = details.initiator;
   const url       = details.url;
-  const isReqUrl  = _.startsWith(initUrl, baseUrl);
+  const isReqUrl  = initUrl.match(new RegExp('^'+baseUrl));
   const isWantUrl =
-    _.startsWith(url, 'http://api.aengzi.com/') ||
-    _.startsWith(url, 'http://101.79.136.27/') ||
-    _.startsWith(url, 'http://101.79.136.36/') ||
-    _.startsWith(url, 'http://211.110.86.208/') ||
-    _.startsWith(url, 'http://vod-archive-kr-cdn-z01.afreecatv.com/') ||
-    _.startsWith(url, 'https://storage.googleapis.com/aengzi.com/')
-;
+    url.match(new RegExp('^http://101.79.136.27/')) ||
+    url.match(new RegExp('^http://101.79.136.36/')) ||
+    url.match(new RegExp('^http://211.110.86.208/')) ||
+    url.match(new RegExp('^http://vod-archive-kr-cdn-z01.afreecatv.com/')) ||
+    url.match(new RegExp('^http://.+api.aengzi.com/')) ||
+    url.match(new RegExp('^https://storage.googleapis.com/aengzi.com/'));
 
   if (isReqUrl && isWantUrl) {
     headers.push({
