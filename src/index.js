@@ -1,3 +1,10 @@
+import axios from 'axios';
+import moment from 'moment';
+
+axios.defaults.headers.common = {
+  'Content-Type': 'application/json'
+};
+
 chrome.browserAction.onClicked.addListener((tab) => {
 
   chrome.tabs.create({
@@ -7,14 +14,12 @@ chrome.browserAction.onClicked.addListener((tab) => {
 
 chrome.webRequest.onBeforeRequest.addListener((details) => {
 
-  const url = chrome.extension.getURL('') + details.url.match(/^http:\/\/chrome-extension\.aengzi\.com\/(.*)/)[1];
-
   return {
-    redirectUrl: url
+    redirectUrl: details.url.replace(/^http:\/\//, 'http://1-1-0.')
   };
 }, {
   urls: [
-    'http://chrome-extension.aengzi.com/*'
+    'http://api.aengzi.com/*'
   ],
   types: [
     'main_frame',
@@ -65,3 +70,56 @@ chrome.webRequest.onHeadersReceived.addListener((details) => {
   'responseHeaders',
   'extraHeaders'
 ]);
+
+let date = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+
+chrome.instanceID.getID((instanceId) => {
+  const device = axios.post('http://1-1-0.api.aengzi.com/devices', {
+    related_id: instanceId,
+    related_type: 'chrome',
+  });
+  setInterval(() => {
+    axios.patch('http://1-1-0.api.aengzi.com/devices/'+device.id, {
+      related_id: instanceId,
+      related_type: 'chrome',
+    });
+    const notificationList = axios.get('http://1-1-0.api.aengzi.com/notifications', {
+      params: {
+        after: date,
+      }
+    });
+
+    for ( notification in notificationList.data )
+    {
+      chrome.notifications.create(notification.id, {
+        type    : 'basic',
+        iconUrl : './main/assets/img/aengzi_icon_origin.jpg',
+        title   : notification.type,
+        message : notification.description,
+        buttons : [
+          {title: '닫기.'}
+        ],
+        priority: 0,
+      });
+    }
+
+    date = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+  }, 3600 * 1000);
+});
+
+chrome.notifications.create('init', {
+  type:     'basic',
+  iconUrl:  './main/assets/img/aengzi_icon_origin.jpg',
+  title:    '설치 성공',
+  message:  'BJ 앵지 확장프로그램을 설치해주셔서 감사합니다.',
+  buttons: [
+    {title: '닫기.'}
+  ],
+  priority: 0
+});
+
+chrome.notifications.onClicked.addListener(() => {
+  chrome.tabs.create({
+    url: chrome.extension.getURL('main/index.html')
+  });
+});
