@@ -12,29 +12,6 @@ chrome.browserAction.onClicked.addListener((tab) => {
   });
 });
 
-chrome.webRequest.onBeforeRequest.addListener((details) => {
-
-  return {
-    redirectUrl: details.url.replace(/^http:\/\//, 'http://1-1-0.')
-  };
-}, {
-  urls: [
-    'http://api.aengzi.com/*'
-  ],
-  types: [
-    'main_frame',
-    'sub_frame',
-    'stylesheet',
-    'script',
-    'image',
-    'object',
-    'xmlhttprequest',
-    'other'
-  ]
-}, [
-  'blocking'
-]);
-
 chrome.webRequest.onHeadersReceived.addListener((details) => {
 
   const baseUrl   = chrome.extension.getURL('').substr(0, chrome.extension.getURL('').length - 1);
