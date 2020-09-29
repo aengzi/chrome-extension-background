@@ -1,0 +1,11 @@
+env:
+  browser: true
+  node: true
+extends:
+  - airbnb-base
+parserOptions:
+  sourceType: module
+rules: {}
+globals:
+  chrome: true
+
