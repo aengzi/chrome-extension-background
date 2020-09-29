@@ -3,6 +3,7 @@ env:
   node: true
 extends:
   - airbnb-base
+  - plugin:prettier/recommended
 parserOptions:
   sourceType: module
 rules: {}
