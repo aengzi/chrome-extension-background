@@ -36,8 +36,12 @@ chrome.webRequest.onHeadersReceived.addListener((details) => {
   };
 }, {
   urls: [
-    'http://*/*',
-    'https://*/*',
+    'http://*.aengzi.com/',
+    'http://101.79.136.27/*',
+    'http://101.79.136.36/*',
+    'http://211.110.86.208/*',
+    'http://vod-archive-kr-cdn-z01.afreecatv.com/*',
+    'https://storage.googleapis.com/aengzi.com/*',
   ],
 }, [
   'blocking',
