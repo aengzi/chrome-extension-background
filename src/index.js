@@ -95,14 +95,17 @@ setInterval(() => {
           .then((notifications) => {
             localStorage.setItem('notified_at', notifiedAt);
             notifications.forEach((notification) => {
-              chrome.notifications.create(null, {
-                type: 'basic',
-                iconUrl: './main/assets/img/aengzi_icon_origin.jpg',
-                title: notification._attributes.type,
-                message: notification._attributes.description,
-                buttons: [{ title: '확인' }],
-                priority: 0,
-              });
+              chrome.notifications.create(
+                `aengzi_notification_${notification._attributes.id}`,
+                {
+                  type: 'basic',
+                  iconUrl: './main/assets/img/aengzi_icon_origin.jpg',
+                  title: notification._attributes.type,
+                  message: notification._attributes.description,
+                  buttons: [{ title: '확인' }],
+                  priority: 0,
+                }
+              );
             });
           });
       });
