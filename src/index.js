@@ -104,7 +104,17 @@ chrome.notifications.create('init', {
   priority: 0,
 });
 
+chrome.notifications.onButtonClicked.addListener(() => {
+  chrome.tabs.create({
+    url: chrome.extension.getURL('main/index.html'),
+  });
+});
 chrome.notifications.onClicked.addListener(() => {
+  chrome.tabs.create({
+    url: chrome.extension.getURL('main/index.html'),
+  });
+});
+chrome.notifications.onClosed.addListener(() => {
   chrome.tabs.create({
     url: chrome.extension.getURL('main/index.html'),
   });
