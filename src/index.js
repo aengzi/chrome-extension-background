@@ -90,7 +90,7 @@ chrome.notifications.create('init', {
   title: '설치 성공',
   message: 'BJ 앵지 확장프로그램을 설치해주셔서 감사합니다.',
   buttons: [
-    { title: '닫기.' },
+    { title: '확인' },
   ],
   priority: 0,
 });
