@@ -1,6 +1,14 @@
 import axios from 'axios';
 import moment from 'moment';
 
+let apiUrl;
+
+if (process.env.NODE_ENV === 'production') {
+  apiUrl = 'http://1-1-0.api.aengzi.com';
+} else if (process.env.NODE_ENV === 'development') {
+  apiUrl = 'http://localhost/aengzi-api';
+}
+
 axios.defaults.headers.common = {
   'Content-Type': 'application/json',
 };
@@ -49,40 +57,41 @@ chrome.webRequest.onHeadersReceived.addListener((details) => {
   'extraHeaders',
 ]);
 
-let date = moment.utc().format('YYYY-MM-DD HH:mm:ss');
-
-chrome.instanceID.getID((instanceId) => {
-  const device = axios.post('http://1-1-0.api.aengzi.com/devices', {
-    related_id: instanceId,
-    related_type: 'chrome',
-  });
-  setInterval(() => {
-    axios.patch(`http://1-1-0.api.aengzi.com/devices/${device.id}`, {
+setInterval(() => {
+  if (moment.utc().format('HH:mm') !== '00:00') {
+    return;
+  }
+  /* eslint-disable no-underscore-dangle */
+  chrome.instanceID.getID((instanceId) => {
+    axios.post(`${apiUrl}/devices`, {
       related_id: instanceId,
       related_type: 'chrome',
-    });
-    const notificationList = axios.get('http://1-1-0.api.aengzi.com/notifications', {
-      params: {
-        after: date,
-      },
-    });
-
-    notificationList.data.forEach((notification) => {
-      chrome.notifications.create(notification.id, {
-        type: 'basic',
-        iconUrl: './main/assets/img/aengzi_icon_origin.jpg',
-        title: notification.type,
-        message: notification.description,
-        buttons: [
-          { title: '닫기.' },
-        ],
-        priority: 0,
+    }).then((obj) => obj.data.result).then((device) => {
+      axios.patch(`${apiUrl}/devices/${device._attributes.id}`, {
+        related_id: instanceId,
+        related_type: 'chrome',
+      });
+      axios.get(`${apiUrl}/notifications`, {
+        params: {
+          after: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
+        },
+      }).then((obj) => obj.data.result.data).then((notifications) => {
+        notifications.forEach((notification) => {
+          chrome.notifications.create(null, {
+            type: 'basic',
+            iconUrl: './main/assets/img/aengzi_icon_origin.jpg',
+            title: notification._attributes.type,
+            message: notification._attributes.description,
+            buttons: [
+              { title: '확인' },
+            ],
+            priority: 0,
+          });
+        });
       });
     });
-
-    date = moment.utc().format('YYYY-MM-DD HH:mm:ss');
-  }, 3600 * 1000);
-});
+  });
+}, 60 * 1000);
 
 chrome.notifications.create('init', {
   type: 'basic',
