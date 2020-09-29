@@ -58,9 +58,12 @@ chrome.webRequest.onHeadersReceived.addListener((details) => {
 ]);
 
 setInterval(() => {
-  if (moment.utc().format('HH:mm') !== '00:00') {
+  const notifiedAt = moment.utc().format('YYYY-MM-DD HH:00:00');
+
+  if (moment.utc().format('mm') !== '00' || localStorage.getItem('notified_at') === notifiedAt) {
     return;
   }
+
   /* eslint-disable no-underscore-dangle */
   chrome.instanceID.getID((instanceId) => {
     axios.post(`${apiUrl}/devices`, {
@@ -73,9 +76,10 @@ setInterval(() => {
       });
       axios.get(`${apiUrl}/notifications`, {
         params: {
-          after: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
+          after: localStorage.getItem('notified_at') ? localStorage.getItem('notified_at') : notifiedAt,
         },
       }).then((obj) => obj.data.result.data).then((notifications) => {
+        localStorage.setItem('notified_at', notifiedAt);
         notifications.forEach((notification) => {
           chrome.notifications.create(null, {
             type: 'basic',

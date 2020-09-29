@@ -8,4 +8,5 @@ parserOptions:
 rules: {}
 globals:
   chrome: true
+  localStorage: true
 
